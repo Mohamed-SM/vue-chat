@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Chat</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./style.css">
+  <style>
+    .container {
+      height: 100vh;
+      position: relative;
+    }
+
+    .buttom {
+      position: absolute;
+      bottom: 0;
+      width: 90%;
+    }
+
+    #conversation {
+      height: 80vh;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="container">
+    <div v-if="loaded !== true" class="loader">Loading...</div>
+    <template v-else>
+      <h1>Messangin App</h1>
+      <div id="conversation">
+        <ul>
+          <li v-for="messagedata in messages">
+            <div>
+              <h4>{{ messagedata.user }}</h4>
+              <p>{{ messagedata.message }}</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="buttom">
+        <form @submit.prevent="sendMessage">
+          <div class="row">
+            <div class="col-md-10 col-9">
+              <div class="form-group">
+                <input type="text" class="form-control" v-model="message">
+              </div>
+            </div>
+            <div class="col-2">
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </template>
+
+
+
+    <div class="modal" id="userModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h4 class="modal-title">Welcome to Our chat</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="username">Pleaser Enter your name</label>
+              <input type="text" id="username" class="form-control" @keyup.enter="persist" v-model="user">
+            </div>
+            <button type="submit" class="btn btn-success" data-dismiss="modal" @click="persist">Entre</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BootStrap -->
+  <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> -->
+  <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.10.0/firebase-database.js"></script>
+  <script>
+    function scrollSmoothToBottom() {
+      var div = document.getElementById("conversation");
+      $('#conversation').animate({
+        scrollTop: div.scrollHeight - div.clientHeight
+      }, 500);
+    }
+
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyBrpzJXQcyROhRLNVZ4si7tDM0i8CZz5So",
+      authDomain: "vueex-92975.firebaseapp.com",
+      databaseURL: "https://vueex-92975.firebaseio.com",
+      projectId: "vueex-92975",
+      storageBucket: "vueex-92975.appspot.com",
+      messagingSenderId: "881391993370"
+    };
+    firebase.initializeApp(config);
+
+    // Initialize Vue object
+    var app = new Vue({
+      el: '#app',
+      data: {
+        user: '',
+        message: '',
+        messages: []
+      },
+      methods: {
+        sendMessage() {
+          if (this.user === null) {
+            $("#userModal").modal()
+          } else {
+            firebase.database().ref('messages').push({
+              user: this.user,
+              message: this.message
+            });
+            this.message = ''
+          }
+        },
+        persist() {
+          console.log("saving to local storage");
+          localStorage.setItem('user', this.user);
+        }
+      },
+      computed: {
+        loaded() {
+          return this.user === null ? false : true;
+        }
+      },
+      beforeMount() {
+        this.user = localStorage.getItem('user');
+        firebase.database().ref('messages').on('child_added', (snapshot) => {
+          this.messages.push(snapshot.val());
+          scrollSmoothToBottom();
+        });
+      },
+      mounted() {
+        if (this.user === null) {
+          $("#userModal").modal()
+        }
+      },
+    })
+  </script>
+</body>
+
+</html>
