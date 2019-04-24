@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Chat</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./loader.css">
   <style>
     .container {
       height: 100vh;
@@ -93,7 +93,7 @@
     function scrollSmoothToBottom() {
       var div = document.getElementById("conversation");
       $('#conversation').animate({
-        scrollTop: div.scrollHeight - div.clientHeight
+        scrollTop: div.scrollHeight
       }, 500);
     }
 
